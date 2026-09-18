@@ -35,6 +35,7 @@ hl.config({
     natural_scroll = true
   },
   general = {
+    layout = "scrolling",
     gaps_in = 6,
     gaps_out = 14,
     border_size = 3,
@@ -46,6 +47,16 @@ hl.config({
       },
       inactive_border = "rgba(595959aa)"
     }
+  },
+  scrolling = {
+    column_width = 0.5,
+    fullscreen_on_one_column = true,
+    focus_fit_method = 1,
+    follow_focus = true,
+    direction = "right",
+    explicit_column_widths = "0.333, 0.5, 0.667, 1.0",
+    wrap_focus = false,
+    wrap_swapcol = false,
   },
   dwindle = {
     force_split = 2
@@ -60,6 +71,12 @@ hl.config({
       new_optimizations = true,
     },
   }
+})
+
+hl.window_rule({
+  match = { title = "^Picture-in-Picture$" },
+  float = true,
+  pin = true,
 })
 
 -- Border Animation
@@ -92,6 +109,29 @@ hl.bind("SUPER+Escape", hl.dsp.exec_cmd(pill_ipc .. " power"))
 hl.bind("SUPER+W", hl.dsp.window.close())
 hl.bind("SUPER+SHIFT+V", hl.dsp.window.float({ action = "toggle" }))
 
+-- Scrolling: focus columns with H/L and stacked windows with Up/Down.
+hl.bind("SUPER+H", hl.dsp.layout("focus l"), { repeating = true })
+hl.bind("SUPER+L", hl.dsp.layout("focus r"), { repeating = true })
+hl.bind("SUPER+Up", hl.dsp.layout("focus u"), { repeating = true })
+hl.bind("SUPER+Down", hl.dsp.layout("focus d"), { repeating = true })
+
+-- Move the entire column, stopping at either end of the row.
+hl.bind("SUPER+SHIFT+H", hl.dsp.layout("swapcol l"), { repeating = true })
+hl.bind("SUPER+SHIFT+L", hl.dsp.layout("swapcol r"), { repeating = true })
+
+-- Cycle column widths: one third, one half, two thirds, full width.
+hl.bind("SUPER+R", hl.dsp.layout("colresize +conf"))
+hl.bind("SUPER+SHIFT+R", hl.dsp.layout("colresize -conf"))
+
+-- Stack the next column's first window here; detach the focused window.
+hl.bind("SUPER+C", hl.dsp.layout("consume"))
+hl.bind("SUPER+SHIFT+C", hl.dsp.layout("promote"))
+
+-- Layout-aware maximized/fullscreen windows remain part of the scrolling row.
+hl.bind("SUPER+F", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle", layout_aware = true }))
+hl.bind("SUPER+SHIFT+F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle", layout_aware = true }))
+
+-- Existing workspace navigation.
 hl.bind("SUPER+J", hl.dsp.focus({ workspace = "e-1" }))
 hl.bind("SUPER+SHIFT+J", hl.dsp.window.move({ workspace = "e-1", follow = true }))
 hl.bind("SUPER+K", hl.dsp.focus({ workspace = "e+1" }))
